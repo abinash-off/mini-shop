@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% block title %}Payment status{% endblock %}{% block content %}
+<section class="page-section narrow"><div class="eyebrow">ORDER #{{ '%05d'|format(order.id) }}</div>
+{% if order.payment_status == 'paid' %}<div class="payment-result success-result"><div>✓</div><h1>Payment confirmed.</h1><p>Your order is being prepared. Thank you for shopping with us.</p></div>
+{% elif order.payment_status == 'failed' %}<div class="payment-result"><div>↻</div><h1>Payment didn't go through.</h1><p>Your order was not paid. Return to the shop and try checkout again.</p></div>
+{% else %}<div class="payment-result"><div>…</div><h1>Payment is being confirmed.</h1><p>Paytm has not sent a final status yet. Your order will update when Paytm confirms it.</p></div>{% endif %}
+<div class="payment-links"><a class="button button-dark" href="{{ url_for('orders') }}">View my orders <span>→</span></a><a class="text-button" href="{{ url_for('home') }}">Continue shopping</a></div></section>{% endblock %}

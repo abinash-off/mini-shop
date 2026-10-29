@@ -1,0 +1,48 @@
+{% extends 'base.html' %}{% block title %}Secure checkout{% endblock %}{% block content %}
+<section class="page-section narrow payment-page"><div class="eyebrow">SECURE PAYMENT</div><h1>Complete your order.</h1><div class="payment-box"><p>Order <strong>#{{ '%05d'|format(order.id) }}</strong></p><p>Total <strong>₹{{ '%.2f'|format(order.total) }}</strong></p><div id="payment-message" class="muted">Opening Paytm's secure checkout…</div><button class="button button-dark" id="paytm-open" type="button" hidden>Open Paytm checkout <span>→</span></button><a class="text-button" href="{{ url_for('cart') }}">Return to your bag</a></div></section>
+<script>
+  const checkoutConfig = {
+    root: "",
+    flow: "DEFAULT",
+    data: {
+      orderId: {{ order.payment_order_id|tojson }},
+      token: {{ order.paytm_txn_token|tojson }},
+      tokenType: "TXN_TOKEN",
+      amount: {{ ('%.2f'|format(order.total))|tojson }}
+    },
+    merchant: { mid: {{ mid|tojson }}, redirect: true },
+    handler: {
+      notifyMerchant: function (eventName, data) {
+        // Browser events are UX hints only; server verification controls the paid state.
+        const message = document.getElementById("payment-message");
+        message.textContent = "Payment response received. Checking status securely. ";
+        const link = document.createElement("a");
+        link.href = {{ url_for('payment_return', order_id=order.id)|tojson }};
+        link.textContent = "View order status";
+        message.appendChild(link);
+      }
+    }
+  };
+  function onPaytmScriptLoad() {
+    const button = document.getElementById("paytm-open");
+    if (!window.Paytm || !window.Paytm.CheckoutJS) {
+      document.getElementById("payment-message").textContent = "Paytm checkout could not load. Check your connection and try again.";
+      button.hidden = false;
+      return;
+    }
+    window.Paytm.CheckoutJS.onLoad(function () {
+      window.Paytm.CheckoutJS.init(checkoutConfig).then(function () {
+        document.getElementById("payment-message").textContent = "Pay securely with Paytm, then return to your order status.";
+        button.hidden = false;
+      }).catch(function () {
+        document.getElementById("payment-message").textContent = "Paytm checkout could not start.";
+        button.hidden = false;
+      });
+    });
+  }
+  document.getElementById("paytm-open").addEventListener("click", function () {
+    if (window.Paytm && window.Paytm.CheckoutJS) window.Paytm.CheckoutJS.invoke();
+  });
+</script>
+<script type="application/javascript" crossorigin="anonymous" src="{{ host }}/merchantpgpui/checkoutjs/merchants/{{ mid }}.js" onload="onPaytmScriptLoad()"></script>
+{% endblock %}

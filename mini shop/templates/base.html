@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f5f1"><title>{% block title %}Common Goods{% endblock %} · Common Goods</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='payments.css') }}">
+</head>
+<body>
+<header class="site-header"><a class="brand" href="{{ url_for('home') }}"><span class="brand-mark">c.</span><span>common goods<span class="brand-caption">OBJECTS FOR EVERY DAY</span></span></a>
+  <nav class="main-nav"><a href="{{ url_for('home') }}">Shop</a>{% if g.user %}<a href="{{ url_for('orders') }}">Orders</a>{% if g.user.is_admin %}<a href="{{ url_for('admin') }}">Admin</a>{% endif %}<form action="{{ url_for('logout') }}" method="post" class="inline"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="nav-button" type="submit">Sign out</button></form>{% else %}<a href="{{ url_for('login') }}">Sign in</a>{% endif %}<a class="bag-link" href="{{ url_for('cart') }}" aria-label="Shopping bag, {{ cart_count }} items">Bag <span class="bag-count">{{ cart_count }}</span></a></nav>
+</header>
+<main>{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-wrap">{% for category,message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}{% block content %}{% endblock %}</main>
+<footer class="site-footer"><a class="brand footer-brand" href="{{ url_for('home') }}"><span class="brand-mark">c.</span> common goods</a><span>Thoughtful things, made to be lived with.</span><span>© 2026 Common Goods</span></footer>
+</body></html>
